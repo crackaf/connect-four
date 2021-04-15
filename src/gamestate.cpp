@@ -2,56 +2,67 @@
 
 //Players GamePlayers;
 
-std::string GameState::GetPlayerName(int PlayerIndex){
-    return GamePlayers.GetPlayerName(PlayerIndex);
+std::string GameState::GetPlayerName(int PlayerIndex)
+{
+  return GamePlayers.GetPlayerName(PlayerIndex);
 }
-char GameState::GetPlayerColor(int PlayerIndex){
-    return GamePlayers.GetPlayerColor(PlayerIndex);
-}
-
-int GameState::AddPlayer(Player* P){
-    return GamePlayers.AddPlayer(P);
+char GameState::GetPlayerColor(int PlayerIndex)
+{
+  return GamePlayers.GetPlayerColor(PlayerIndex);
 }
 
-double GameState::Utility(unsigned int PlayerIndex){
-    return 0;
+int GameState::AddPlayer(Player *P)
+{
+  return GamePlayers.AddPlayer(P);
 }
 
-unsigned int GameState::GetTurningPlayer(){
-    return TurningPlayer;
+double GameState::Utility(unsigned int PlayerIndex)
+{
+  return 0;
 }
 
-int GameState::WhoWon(){
-    return this->GamePlayers.Winner;
+unsigned int GameState::GetTurningPlayer()
+{
+  return TurningPlayer;
 }
 
-GameState::GameState(){
-    this->TurningPlayer = 0;  //index of player making the move
+int GameState::WhoWon()
+{
+  return this->GamePlayers.Winner;
 }
 
-bool GameState::GameOver() {
-    return (this->GamePlayers.Winner != -1);
+GameState::GameState()
+{
+  this->TurningPlayer = 0; //index of player making the move
 }
 
+bool GameState::GameOver()
+{
+  return (this->GamePlayers.Winner != -1);
+}
 
-bool GameState::MakeMove(){
-    GameMove* Move = nullptr;
-    Move = GamePlayers.PlayerList[TurningPlayer]->SuggestMove( Clone() );
-    int NextTurn = SelectNextPlayer();
-    if (!Valid(Move)){
-        TurningPlayer = NextTurn;
-        return false;
-    }
-    Winning(Move);
-    ApplyMove(Move);
-//            TurningPlayer = NextTurn;
-    return true;
+bool GameState::MakeMove()
+{
+  GameMove *Move = nullptr;
+  Move = GamePlayers.PlayerList[TurningPlayer]->SuggestMove(Clone());
+  int NextTurn = SelectNextPlayer();
+  if (!Valid(Move))
+  {
+    TurningPlayer = NextTurn;
+    return false;
+  }
+  Winning(Move);
+  ApplyMove(Move);
+  //            TurningPlayer = NextTurn;
+  return true;
 };
 
-unsigned int GameState::SelectNextPlayer(){
-    return (TurningPlayer + 1) % this->GamePlayers.TotalPlayers;
+unsigned int GameState::SelectNextPlayer()
+{
+  return (TurningPlayer + 1) % this->GamePlayers.TotalPlayers;
 }
 
-double GameState::EvaluateState(unsigned int PlayerIndex){
-    return 0;
+double GameState::EvaluateState(unsigned int PlayerIndex)
+{
+  return 0;
 }
