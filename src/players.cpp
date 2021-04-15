@@ -11,7 +11,7 @@ std::string Players::GetPlayerName(int PlayerIndex)
 {
   if (PlayerIndex < 0)
     PlayerIndex = 0;
-  if (PlayerIndex < TotalPlayers)
+  if (PlayerIndex < int(TotalPlayers))
     return PlayerList[PlayerIndex]->PlayerName;
   return "Invalid Index";
 }
@@ -21,7 +21,7 @@ char Players::GetPlayerColor(int PlayerIndex)
   if (PlayerIndex < 0)
     PlayerIndex = 0;
 
-  if (PlayerIndex < TotalPlayers)
+  if (PlayerIndex < int(TotalPlayers))
     return PlayerList[PlayerIndex]->PlayerID;
 
   return 0;
