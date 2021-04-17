@@ -6,7 +6,7 @@
 class Connect4State : public GameState
 {
 private:
-  char State[6][7]; // A 6 x 7 array to hold discs placed by players
+  char State[6][7]; // A 6 x 7 array to hold discs placed by players. 6 rows, 7 colmns
   int MoveTo[7];    // Hold largest empty row position for each column
 
   bool NoMoreMoves();

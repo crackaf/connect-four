@@ -73,7 +73,7 @@ int main()
   Players[0] = new HumanPlayer("Human", 'H');
   Players[1] = new AutoC4Player();
   Players[2] = new AutoC4Player('B');
-  int TotalPlayers = 3;
+  int TotalPlayers = 2;
 
   for (int i = 0; i < TotalPlayers - 1; i++)
   {

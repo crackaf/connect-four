@@ -9,7 +9,7 @@ double AutoC4Player::EvaluateState(GameBoard *Board)
 {
   // Board Evaluation Area;
   // This auto-player is not using it.
-    return 0;
+  return 0;
 }
 
 Connect4Move *AutoC4Player::SuggestMove(GameState *State)

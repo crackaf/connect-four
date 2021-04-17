@@ -18,9 +18,56 @@ int Connect4State::CheckWinner(int r, int c)
     If game has been won then the players ID will be returned
     else -1 will be the return value
     */
+
   if (NoMoreMoves())
     return -2; // Game Drawn
-  return -1;
+
+  char current_player = this->GetPlayerColor();
+  bool isWin = false;
+
+  //check vertically, only need to check down
+  if (!isWin)
+  {
+    int down = 0;
+    for (int row = r - 1; row >= 0 && this->State[row][c] != current_player; --row) //moving down
+      ++down;
+    isWin = down >= 3 ? true : false;
+  }
+
+  //check horizontaly
+  if (!isWin)
+  {
+    int right = 0, left = 0;
+    for (int col = c - 1; col >= 0 && this->State[r][col] != current_player; --col) //moving left
+      ++left;
+    for (int col = c + 1; col < 7 && this->State[r][col] != current_player; ++col) //moving right
+      ++right;
+    isWin = (left + right) >= 3 ? true : false;
+  }
+
+  //check forward diagnal e.g //
+  if (!isWin)
+  {
+    int upright = 0, downleft = 0;
+    for (int col = c - 1, row = r - 1; col >= 0 && row >= 0 && this->State[row][col] != current_player; --col, --row) //moving downleft
+      ++downleft;
+    for (int col = c + 1, row = r + 1; col < 7 && row < 6 && this->State[row][col] != current_player; ++col, ++row) //moving upright
+      ++upright;
+    isWin = (downleft + upright) >= 3 ? true : false;
+  }
+
+  //check backward diagnal
+  if (!isWin)
+  {
+    int upleft = 0, downright = 0;
+    for (int col = c + 1, row = r - 1; col < 7 && row >= 0 && this->State[row][col] != current_player; ++col, --row) //moving downright
+      ++downright;
+    for (int col = c - 1, row = r + 1; col >= 0 && row < 6 && this->State[row][col] != current_player; --col, ++row) //moving upleft
+      ++upleft;
+    isWin = (downright + upleft) >= 3 ? true : false;
+  }
+
+  return isWin ? this->TurningPlayer : -1;
 }
 
 double Connect4State::Utility(unsigned int PlayerIndex)
@@ -79,8 +126,10 @@ Connect4State::Connect4State()
 bool Connect4State::Winning(GameMove *Move)
 {
   // Code Here
+  Connect4Move *M = static_cast<Connect4Move *>(Move);
+  int column = M->GetMove();
 
-  return false;
+  return CheckWinner(MoveTo[column], column) >= 0 ? true : false;
 }
 
 bool Connect4State::Valid(GameMove *Move)

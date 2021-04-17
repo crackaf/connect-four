@@ -1,5 +1,5 @@
-# OR use `g++ -Wall *.cpp -o connectfour -std=c17`
-# OR use `g++ *.cpp -o connectfour -std=c17`
+# OR use `g++ -Wall *.cpp -o connectfour.out -std=c17`
+# OR use `g++ *.cpp -o connectfour.out -std=c17`
 
 
 OBJS	= main.o autoc4player.o connect4board.o connect4move.o connect4state.o gamemove.o gamestate.o humanplayer.o player.o players.o
