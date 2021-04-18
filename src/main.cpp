@@ -70,8 +70,9 @@ int main()
 {
   Player *Players[3];
   int InvalidMoveCount[3];
-  Players[0] = new HumanPlayer("Human", 'H');
-  Players[1] = new AutoC4Player();
+  Players[0] = new HumanPlayer("Human1", 'H');
+  Players[1] = new HumanPlayer("Human2", 'K');
+  //Players[1] = new AutoC4Player();
   Players[2] = new AutoC4Player('B');
   int TotalPlayers = 2;
 

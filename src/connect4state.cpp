@@ -8,6 +8,17 @@ bool Connect4State::NoMoreMoves()
   return true;
 }
 
+/*
+ 0 1 2 3 4 5 6 --> cols
+ 1
+ 2
+ 3
+ 4
+ 5
+ |
+ rows
+*/
+
 int Connect4State::CheckWinner(int r, int c)
 {
   /** Your Code Goes Here
@@ -29,7 +40,7 @@ int Connect4State::CheckWinner(int r, int c)
   if (!isWin)
   {
     int down = 0;
-    for (int row = r - 1; row >= 0 && this->State[row][c] != current_player; --row) //moving down
+    for (int row = r + 1; row < 6 && this->State[row][c] == current_player; ++row) //moving down
       ++down;
     isWin = down >= 3 ? true : false;
   }
@@ -38,9 +49,9 @@ int Connect4State::CheckWinner(int r, int c)
   if (!isWin)
   {
     int right = 0, left = 0;
-    for (int col = c - 1; col >= 0 && this->State[r][col] != current_player; --col) //moving left
+    for (int col = c - 1; col >= 0 && this->State[r][col] == current_player; --col) //moving left
       ++left;
-    for (int col = c + 1; col < 7 && this->State[r][col] != current_player; ++col) //moving right
+    for (int col = c + 1; col < 7 && this->State[r][col] == current_player; ++col) //moving right
       ++right;
     isWin = (left + right) >= 3 ? true : false;
   }
@@ -49,20 +60,21 @@ int Connect4State::CheckWinner(int r, int c)
   if (!isWin)
   {
     int upright = 0, downleft = 0;
-    for (int col = c - 1, row = r - 1; col >= 0 && row >= 0 && this->State[row][col] != current_player; --col, --row) //moving downleft
+    for (int col = c - 1, row = r + 1; col >= 0 && row <6 && this->State[row][col] == current_player; --col, ++row) //moving downleft
       ++downleft;
-    for (int col = c + 1, row = r + 1; col < 7 && row < 6 && this->State[row][col] != current_player; ++col, ++row) //moving upright
+    for (int col = c + 1, row = r - 1; col < 7 && row >=0 && this->State[row][col] == current_player; ++col, --row) //moving upright
       ++upright;
     isWin = (downleft + upright) >= 3 ? true : false;
   }
 
-  //check backward diagnal
+  /*check backward diagnal e.g \\*/
+
   if (!isWin)
   {
     int upleft = 0, downright = 0;
-    for (int col = c + 1, row = r - 1; col < 7 && row >= 0 && this->State[row][col] != current_player; ++col, --row) //moving downright
+    for (int col = c + 1, row = r + 1; col < 7 && row < 6 && this->State[row][col] == current_player; ++col, ++row) //moving downright
       ++downright;
-    for (int col = c - 1, row = r + 1; col >= 0 && row < 6 && this->State[row][col] != current_player; --col, ++row) //moving upleft
+    for (int col = c - 1, row = r - 1; col >= 0 && row >=0 && this->State[row][col] == current_player; --col, --row) //moving upleft
       ++upleft;
     isWin = (downright + upleft) >= 3 ? true : false;
   }
@@ -125,7 +137,7 @@ Connect4State::Connect4State()
 
 bool Connect4State::Winning(GameMove *Move)
 {
-  // Code Here
+  //// Code Here
   Connect4Move *M = static_cast<Connect4Move *>(Move);
   int column = M->GetMove();
 
