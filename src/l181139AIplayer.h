@@ -33,7 +33,7 @@ private:
 
 public:
   l181139AIplayer(/* args */);
-  l181139AIplayer(std::string name, unsigned int ID = 'P');
+  l181139AIplayer(std::string name, unsigned int ID = 'P', int DifficultyLevel=4);
   ~l181139AIplayer();
 
   GameMove *SuggestMove(GameState *State);
@@ -132,10 +132,11 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
 }
 
 l181139AIplayer::l181139AIplayer(/* args */)
+    :Player("L181139", 'P')
 {
 }
 
-l181139AIplayer::l181139AIplayer(std::string name, unsigned int ID) : Player(name, ID) {}
+l181139AIplayer::l181139AIplayer(std::string name, unsigned int ID, int DifficultyLevel) : Player(name, ID,DifficultyLevel) {}
 
 l181139AIplayer::~l181139AIplayer()
 {
