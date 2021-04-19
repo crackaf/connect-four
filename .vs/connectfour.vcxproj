@@ -167,6 +167,7 @@
     <ClInclude Include="..\src\gamemove.h" />
     <ClInclude Include="..\src\gamestate.h" />
     <ClInclude Include="..\src\humanplayer.h" />
+    <ClInclude Include="..\src\l181139player.h" />
     <ClInclude Include="..\src\player.h" />
     <ClInclude Include="..\src\players.h" />
   </ItemGroup>

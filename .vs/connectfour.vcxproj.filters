@@ -77,5 +77,8 @@
     <ClInclude Include="..\src\players.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\l181139player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
