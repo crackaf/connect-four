@@ -33,7 +33,7 @@ int Connect4State::CheckWinner(int r, int c)
   if (NoMoreMoves())
     return -2; // Game Drawn
 
-  char current_player = this->GetPlayerColor();
+  char current_player = this->GetPlayerColor(this->TurningPlayer);
   bool isWin = false;
 
   //check vertically, only need to check down
@@ -60,9 +60,9 @@ int Connect4State::CheckWinner(int r, int c)
   if (!isWin)
   {
     int upright = 0, downleft = 0;
-    for (int col = c - 1, row = r + 1; col >= 0 && row <6 && this->State[row][col] == current_player; --col, ++row) //moving downleft
+    for (int col = c - 1, row = r + 1; col >= 0 && row < 6 && this->State[row][col] == current_player; --col, ++row) //moving downleft
       ++downleft;
-    for (int col = c + 1, row = r - 1; col < 7 && row >=0 && this->State[row][col] == current_player; ++col, --row) //moving upright
+    for (int col = c + 1, row = r - 1; col < 7 && row >= 0 && this->State[row][col] == current_player; ++col, --row) //moving upright
       ++upright;
     isWin = (downleft + upright) >= 3 ? true : false;
   }
@@ -74,7 +74,7 @@ int Connect4State::CheckWinner(int r, int c)
     int upleft = 0, downright = 0;
     for (int col = c + 1, row = r + 1; col < 7 && row < 6 && this->State[row][col] == current_player; ++col, ++row) //moving downright
       ++downright;
-    for (int col = c - 1, row = r - 1; col >= 0 && row >=0 && this->State[row][col] == current_player; --col, --row) //moving upleft
+    for (int col = c - 1, row = r - 1; col >= 0 && row >= 0 && this->State[row][col] == current_player; --col, --row) //moving upleft
       ++upleft;
     isWin = (downright + upleft) >= 3 ? true : false;
   }
