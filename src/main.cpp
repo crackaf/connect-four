@@ -71,8 +71,10 @@ int main()
 {
   Player *Players[3];
   int InvalidMoveCount[3];
-  Players[0] = new HumanPlayer("Human1", 'H');
+  Players[0] = new l181139AIplayer("Malik", 'L');
   Players[1] = new l181139AIplayer("Malik", 'P');
+  //Players[1] = new HumanPlayer("Human1", 'H');
+
   //Players[1] = new HumanPlayer("Human2", 'K');
   //Players[1] = new AutoC4Player('L');
   Players[2] = new AutoC4Player('B');
@@ -98,7 +100,7 @@ int main()
         Toggle = (Toggle + 1) % 2;
 
         TurningPlayer = C4->GetTurningPlayer();
-        cout << "Player Turning: " << C4->GetPlayerName() << "-" << C4->GetPlayerColor() << endl;
+        cout << "Player Turning: " << C4->GetPlayerName(TurningPlayer) << "-" << C4->GetPlayerColor(TurningPlayer) << endl;
 
         if (!C4->MakeMove())
         {
@@ -110,6 +112,7 @@ int main()
         }
       }
       ShowConnect4(C4);
+      cout << "\nWho Won?\n" << C4->WhoWon() << "   Color:" << C4->GetPlayerColor(C4->WhoWon());
     }
   }
 
