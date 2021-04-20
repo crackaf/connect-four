@@ -45,10 +45,6 @@ public:
 
   //because GameState->Winning() only check win for currect player and there is no way to changing the currect player without ApplyMove()
   bool isWinState(GameState *State, int player);
-
-  //beacause when I move the player turn is change, which should not if I want to test moves
-  //No need for this function if SetState is public
-  GameState *CloneMove(GameState *State, GameMove *Move);
 };
 
 int l181139AIplayer::getNextRow(GameState *State, int col)
@@ -101,12 +97,11 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
       Connect4Move *col = static_cast<Connect4Move *>(colS);
       // int row = getNextRow(state, col->GetMove()); //available row in the current col
       GameState *state_copy = state->Clone();
-      if (state_copy->GetPlayerColor(state->GetTurningPlayer()) != this->PlayerID)
-      {
-        int debug = 1; //TODO
-      }
-      //state_copy->SetState(getNextrow(state_copy,col), col, state_copy->GetPlayerColor()); //AI move
-
+      // if (state_copy->GetPlayerColor(state->GetTurningPlayer()) != this->PlayerID)
+      // {
+      //   int debug = 1; //TODO
+      // }
+      state_copy->ApplyMove(col); //AI move
       minimax_node new_node = minimax(state_copy, depth - 1, alpha, beta, false);
       int new_score = new_node.score;
 
@@ -131,10 +126,10 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
     {
       Connect4Move *col = static_cast<Connect4Move *>(colS);
       GameState *state_copy = state->Clone();
-      if (state_copy->GetPlayerColor(state->GetTurningPlayer()) == this->PlayerID)
-      {
-        int debug = 1; // TODO
-      }
+      // if (state_copy->GetPlayerColor(state->GetTurningPlayer()) == this->PlayerID)
+      // {
+      //   int debug = 1; // TODO
+      // }
       state_copy->ApplyMove(col); //opposition move
       minimax_node new_node = minimax(state_copy, depth - 1, alpha, beta, true);
       int new_score = new_node.score;
@@ -311,11 +306,6 @@ bool l181139AIplayer::isWinState(GameState *State, int player)
         return true;
 
   return false;
-}
-
-GameState *l181139AIplayer::CloneMove(GameState *State, GameMove *Move)
-{
-  return nullptr;
 }
 
 #endif // L181139PLAYER_H
