@@ -70,21 +70,16 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
   //check if player can win in next move
   if (!terminal_state)
   {
-    // GameState *state_copy = state->Clone();
     GameState *state_test = state->Clone();
-
-    for (auto i : valid_moves)
-    {
-      if (state_test->Valid(i) && isWinState(state_test, state->GetTurningPlayer())) //my own player checking
-        return {static_cast<Connect4Move *>(i)->GetMove(), 100000000};
-      if (state_test->Valid(i) && isWinState(state_test, state->SelectNextPlayer())) //opposition checking
-        return {static_cast<Connect4Move *>(i)->GetMove(), -100000000};
-    }
+    if (isWinState(state_test, state->GetTurningPlayer())) //my own player checking
+      return {NULL, 100000000};
+    if (isWinState(state_test, state->SelectNextPlayer())) //opposition checking
+      return {NULL, -100000000};
   }
 
   if (depth == 0)
   {
-    return {-1, int(EvaluateState(state))};
+    return {-1, int(EvaluateState(state))}; //returns the evaluation score
   }
 
   if (isMaxPlayer)
@@ -95,17 +90,12 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
     for (auto colS : valid_moves)
     {
       Connect4Move *col = static_cast<Connect4Move *>(colS);
-      // int row = getNextRow(state, col->GetMove()); //available row in the current col
       GameState *state_copy = state->Clone();
-      // if (state_copy->GetPlayerColor(state->GetTurningPlayer()) != this->PlayerID)
-      // {
-      //   int debug = 1; //TODO
-      // }
-      state_copy->ApplyMove(col); //AI move
-      minimax_node new_node = minimax(state_copy, depth - 1, alpha, beta, false);
-      int new_score = new_node.score;
 
-      if (new_score > value)
+      state_copy->ApplyMove(col); //AI move
+      int new_score = minimax(state_copy, depth - 1, alpha, beta, false).score;
+
+      if (new_score > value) //selecting best score for our AI
       {
         value = new_score;
         bestcolumn = col->GetMove();
@@ -126,15 +116,11 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
     {
       Connect4Move *col = static_cast<Connect4Move *>(colS);
       GameState *state_copy = state->Clone();
-      // if (state_copy->GetPlayerColor(state->GetTurningPlayer()) == this->PlayerID)
-      // {
-      //   int debug = 1; // TODO
-      // }
-      state_copy->ApplyMove(col); //opposition move
-      minimax_node new_node = minimax(state_copy, depth - 1, alpha, beta, true);
-      int new_score = new_node.score;
 
-      if (new_score < value)
+      state_copy->ApplyMove(col); //opposition move
+      int new_score = minimax(state_copy, depth - 1, alpha, beta, true).score;
+
+      if (new_score < value) //selecting worst score for us
       {
         value = new_score;
         bestcolumn = col->GetMove();
@@ -148,37 +134,26 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
   }
 }
 
-l181139AIplayer::l181139AIplayer(/* args */)
-    : Player("L181139", 'P')
-{
-}
+l181139AIplayer::l181139AIplayer(/* args */) : Player("L181139", 'P') {}
 
 l181139AIplayer::l181139AIplayer(std::string name, unsigned int ID, int DifficultyLevel) : Player(name, ID, DifficultyLevel) {}
 
-l181139AIplayer::~l181139AIplayer()
-{
-}
+l181139AIplayer::~l181139AIplayer() {}
 
 GameMove *l181139AIplayer::SuggestMove(GameState *State)
 {
-  minimax_node bestmove = minimax(State, this->DiffLevel, INT_MIN, INT_MAX, true);
-  if (bestmove.column < 0)
-  {
-    int i = 0;
-  }
-
-  return new Connect4Move(bestmove.column);
+  return new Connect4Move(minimax(State, this->DiffLevel, INT_MIN, INT_MAX, true).column);
 }
 
 double l181139AIplayer::EvaluateSubState(std::string line)
 {
   double score = 0;
 
-  int my_count = std::count(line.begin(), line.end(), this->PlayerID);
-  int null_count = std::count(line.begin(), line.end(), '.');
+  int my_count = std::count(line.begin(), line.end(), this->PlayerID); //count my stones
+  int null_count = std::count(line.begin(), line.end(), '.');          //count empty slots
   int opposition_count = std::count_if(line.begin(), line.end(), [&](char c) {
     return (c != this->PlayerID && c != '.');
-  });
+  }); //count opponent stones
 
   if (my_count >= 4)
     score += 100;
@@ -194,7 +169,6 @@ double l181139AIplayer::EvaluateSubState(std::string line)
   return score;
 }
 
-// Help taken from internet for this Heuristic
 // scoring every position with respective to my ID
 double l181139AIplayer::EvaluateState(GameBoard *Board)
 {
@@ -210,7 +184,7 @@ double l181139AIplayer::EvaluateState(GameBoard *Board)
   for (int r = 0; r < krows; ++r)
     if (board[r][kcols / 2] == this->PlayerID) //center
       ++centerpoints;
-  score += centerpoints * 30;
+  score += double(centerpoints) * 30;
 
   //verticle scores
   for (int c = 0; c < kcols; ++c)
@@ -273,6 +247,7 @@ double l181139AIplayer::EvaluateState(GameState *State)
   for (int r = 0; r < krows; ++r)
     for (int c = 0; c < kcols; ++c)
       mystate[r][c] = state->getState(r, c);
+
   return EvaluateState(new Connect4Board(mystate));
 }
 
