@@ -100,7 +100,7 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
       GameState *state_copy = state->Clone();
 
       state_copy->ApplyMove(col); //AI move
-      int new_score = minimax(state_copy, depth - 1, alpha, beta, false).score;
+      double new_score = minimax(state_copy, depth - 1, alpha, beta, false).score;
 
       if (new_score > value) //selecting best score for our AI
       {
@@ -125,7 +125,7 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
       GameState *state_copy = state->Clone();
 
       state_copy->ApplyMove(col); //opposition move
-      int new_score = minimax(state_copy, depth - 1, alpha, beta, true).score;
+      double new_score = minimax(state_copy, depth - 1, alpha, beta, true).score;
 
       if (new_score < value) //selecting worst score for us
       {
