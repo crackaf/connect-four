@@ -45,6 +45,7 @@ public:
   virtual GameState *ApplyMove(GameMove *Move) = 0;
   virtual double EvaluateState(unsigned int PlayerIndex);
   virtual GameState *Clone() = 0;
+  virtual GameBoard *GetBoard() = 0;
 };
 
 #endif // GAMESTATE_H

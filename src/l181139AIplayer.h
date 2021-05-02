@@ -11,6 +11,17 @@
 #include "connect4state.h"
 #include "connect4board.h"
 
+/*
+  0 1 2 3 4 5 6 ->cols
+  1
+  2
+  3
+  4
+  5
+  |
+  rows
+*/
+
 class l181139AIplayer : public Player
 {
 private:
@@ -21,12 +32,12 @@ private:
   struct minimax_node
   {
     int column;
-    int score;
+    double score;
   };
 
   //minimax supporting functions
   int getNextRow(GameState *state, int col);
-  minimax_node minimax(GameState *state, int depth, int alpha, int beta, bool isMaxPlayer);
+  minimax_node minimax(GameState *state, int depth, double alpha, double beta, bool isMaxPlayer);
 
   //supporting evaluate state functions
   double EvaluateSubState(std::string substate);
@@ -39,7 +50,7 @@ public:
   GameMove *SuggestMove(GameState *State);
 
   double EvaluateState(GameBoard *Board); //this should have game state :/
-  double EvaluateState(GameState *State); //wrapper function
+  // double EvaluateState(GameState *State);					//wrapper function
 
   //functions that should have been in connect4 state if the structure was good
 
@@ -56,35 +67,31 @@ int l181139AIplayer::getNextRow(GameState *State, int col)
   return -1;
 }
 
-l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int depth, int alpha, int beta, bool isMaxPlayer)
+l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int depth, double alpha, double beta, bool isMaxPlayer)
 {
   Connect4State *state = static_cast<Connect4State *>(State);
   std::vector<GameMove *> valid_moves = State->GetPossibleMoves(); //valid moves in the current state
 
-  bool terminal_state = (valid_moves.size() == 0); //no more moves
+  if (isWinState(state, this->PlayerID)) //my own player checking
+    return {NULL, 100000000000000};
+  else if (this->PlayerID != state->GetTurningPlayer() && isWinState(state, state->GetTurningPlayer())) //my own player checking
+    return {NULL, -100000000000000};
+  else if (isWinState(state, state->SelectNextPlayer())) //opposition checking
+    return {NULL, -10000000000000};
 
-  if (terminal_state)
+  else if (valid_moves.size() == 0) //no more moves
     return {NULL, 0};
-
   //is ends in next move?
   //check if player can win in next move
-  if (!terminal_state)
-  {
-    GameState *state_test = state->Clone();
-    if (isWinState(state_test, state->GetTurningPlayer())) //my own player checking
-      return {NULL, 100000000};
-    if (isWinState(state_test, state->SelectNextPlayer())) //opposition checking
-      return {NULL, -100000000};
-  }
 
   if (depth == 0)
   {
-    return {-1, int(EvaluateState(state))}; //returns the evaluation score
+    return {-1, EvaluateState(state->GetBoard())}; //returns the evaluation score
   }
 
   if (isMaxPlayer)
   {
-    int value = INT_MIN; //initializing score to minimum
+    double value = -DBL_MAX; //initializing score to minimum
     int bestcolumn = static_cast<Connect4Move *>(valid_moves[0])->GetMove();
 
     for (auto colS : valid_moves)
@@ -109,7 +116,7 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
   }
   else //min player
   {
-    int value = INT_MAX;
+    double value = DBL_MAX;
     int bestcolumn = static_cast<Connect4Move *>(valid_moves[0])->GetMove();
 
     for (auto colS : valid_moves)
@@ -142,7 +149,7 @@ l181139AIplayer::~l181139AIplayer() {}
 
 GameMove *l181139AIplayer::SuggestMove(GameState *State)
 {
-  return new Connect4Move(minimax(State, this->DiffLevel, INT_MIN, INT_MAX, true).column);
+  return new Connect4Move(minimax(State, this->DiffLevel, -DBL_MAX, DBL_MAX, true).column);
 }
 
 double l181139AIplayer::EvaluateSubState(std::string line)
@@ -157,13 +164,15 @@ double l181139AIplayer::EvaluateSubState(std::string line)
 
   if (my_count >= 4)
     score += 100;
+  // else if (opposition_count >= 4)
+  // 	score -= 90;
   else if (my_count == 3 && null_count == 1)
     score += 5;
   else if (my_count == 2 && null_count == 2)
     score += 2;
-  else if (opposition_count == 2 && null_count == 2)
-    score -= 1;
-  else if (opposition_count == 3 && null_count == 1)
+  // else if (opposition_count == 2 && null_count == 2)
+  // 	score -= 1;
+  if (opposition_count == 3 && null_count == 1)
     score -= 4;
 
   return score;
@@ -172,27 +181,25 @@ double l181139AIplayer::EvaluateSubState(std::string line)
 // scoring every position with respective to my ID
 double l181139AIplayer::EvaluateState(GameBoard *Board)
 {
-  char board[6][7];
+  Connect4Board *board = static_cast<Connect4Board *>(Board);
   double score = 0;
 
-  for (int r = 0; r < krows; ++r)
-    for (int c = 0; c < kcols; ++c)
-      board[r][c] = static_cast<Connect4Board *>(Board)->State[r][c];
+  int sbound = kscore - 1;
 
   //center column score --> important if game is equal
   int centerpoints = 0;
   for (int r = 0; r < krows; ++r)
-    if (board[r][kcols / 2] == this->PlayerID) //center
+    if (board->State[r][kcols / 2] == this->PlayerID) //center
       ++centerpoints;
-  score += double(centerpoints) * 30;
+  score += double(centerpoints) * 3;
 
   //verticle scores
   for (int c = 0; c < kcols; ++c)
   {
     std::string col;
     for (int r = 0; r < krows; ++r)
-      col.push_back(board[r][c]);
-    for (int r = 0; r < krows - kscore + 1; ++r)
+      col.push_back(board->State[r][c]);
+    for (int r = 0; r < krows - sbound; ++r)
     {
       std::string subcol = col.substr(r, kscore); //get 4 coins/stones
       score += EvaluateSubState(subcol);          //evaluate every 4 coins/stones seperately
@@ -204,8 +211,8 @@ double l181139AIplayer::EvaluateState(GameBoard *Board)
   {
     std::string row;
     for (int c = 0; c < kcols; ++c)
-      row.push_back(board[r][c]);
-    for (int c = 0; c < kcols - kscore + 1; ++c)
+      row.push_back(board->State[r][c]);
+    for (int c = 0; c < kcols - sbound; ++c)
     {
       std::string subrow = row.substr(c, kscore);
       score += EvaluateSubState(subrow);
@@ -213,25 +220,25 @@ double l181139AIplayer::EvaluateState(GameBoard *Board)
   }
 
   //forward diagnol e.g //
-  for (int r = 0; r < krows - kscore + 1; ++r)
+  for (int r = 0; r < krows - sbound; ++r)
   {
-    for (int c = 0; c < kcols - kscore + 1; ++c)
+    for (int c = 0; c < kcols - sbound; ++c)
     {
       std::string diagnol;
       for (int i = 0; i < kscore; ++i)
-        diagnol.push_back(board[r + i][c + i]);
+        diagnol.push_back(board->State[r + i][c + i]);
       score += EvaluateSubState(diagnol);
     }
   }
 
   //backward diagnol , negative slope
-  for (int r = 0; r < krows - kscore + 1; ++r)
+  for (int r = 0; r < krows - sbound; ++r)
   {
-    for (int c = 0; c < kcols - kscore + 1; ++c)
+    for (int c = 0; c < kcols - sbound; ++c)
     {
       std::string diagnol;
       for (int i = 0; i < kscore; ++i)
-        diagnol.push_back(board[r + kscore - 1 - i][c + i]);
+        diagnol.push_back(board->State[r + sbound - i][c + i]);
       score += EvaluateSubState(diagnol);
     }
   }
@@ -239,43 +246,45 @@ double l181139AIplayer::EvaluateState(GameBoard *Board)
   return score;
 }
 
-double l181139AIplayer::EvaluateState(GameState *State)
-{
-  Connect4State *state = static_cast<Connect4State *>(State);
+// double l181139AIplayer::EvaluateState(GameState *State)
+// {
+// 	Connect4State *state = static_cast<Connect4State *>(State);
 
-  char mystate[6][7];
-  for (int r = 0; r < krows; ++r)
-    for (int c = 0; c < kcols; ++c)
-      mystate[r][c] = state->getState(r, c);
+// 	char mystate[6][7];
+// 	for (int r = 0; r < krows; ++r)
+// 		for (int c = 0; c < kcols; ++c)
+// 			mystate[r][c] = state->getState(r, c);
 
-  return EvaluateState(new Connect4Board(mystate));
-}
+// 	return EvaluateState(new Connect4Board(mystate));
+// }
 
 bool l181139AIplayer::isWinState(GameState *State, int player)
 {
   Connect4State *state = static_cast<Connect4State *>(State);
   char current_player = state->GetPlayerColor(player);
 
+  int sbound = kscore - 1;
+
   //check vertically
   for (int c = 0; c < kcols; ++c)
-    for (int r = 0; r < krows - kscore + 1; ++r)
+    for (int r = 0; r < krows - sbound; ++r)
       if (state->getState(r, c) == current_player && state->getState(r + 1, c) == current_player && state->getState(r + 2, c) == current_player && state->getState(r + 3, c) == current_player)
         return true;
 
   //check horizontaly
-  for (int c = 0; c < kcols - kscore + 1; ++c)
+  for (int c = 0; c < kcols - sbound; ++c)
     for (int r = 0; r < krows; ++r)
       if (state->getState(r, c) == current_player && state->getState(r, c + 1) == current_player && state->getState(r, c + 2) == current_player && state->getState(r, c + 3) == current_player)
         return true;
 
   //check forward diagnal e.g //
-  for (int c = 0; c < kcols - kscore + 1; ++c)
-    for (int r = 0; r < krows - kscore + 1; ++r)
+  for (int c = 0; c < kcols - sbound; ++c)
+    for (int r = 0; r < krows - sbound; ++r)
       if (state->getState(r, c) == current_player && state->getState(r + 1, c + 1) == current_player && state->getState(r + 2, c + 2) == current_player && state->getState(r + 3, c + 3) == current_player)
         return true;
 
   /*check backward diagnal e.g \\*/
-  for (int c = 0; c < kcols - kscore + 1; ++c)
+  for (int c = 0; c < kcols - sbound; ++c)
     for (int r = kscore - 1; r < krows; ++r)
       if (state->getState(r, c) == current_player && state->getState(r - 1, c + 1) == current_player && state->getState(r - 2, c + 2) == current_player && state->getState(r - 3, c + 3) == current_player)
         return true;

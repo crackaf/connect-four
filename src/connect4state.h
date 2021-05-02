@@ -26,6 +26,7 @@ public:
   virtual GameState *ApplyMove(GameMove *Move);
   virtual double EvaluateState(unsigned int PlayerIndex);
   virtual GameState *Clone();
+  virtual GameBoard *GetBoard();
 };
 
 #endif // CONNECT4STATE_H

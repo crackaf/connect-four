@@ -1,4 +1,5 @@
 #include "connect4state.h"
+#include "connect4board.h"
 
 bool Connect4State::NoMoreMoves()
 {
@@ -201,4 +202,10 @@ double Connect4State::EvaluateState(unsigned int PlayerIndex)
 GameState *Connect4State::Clone()
 {
   return new Connect4State(*this);
+}
+
+GameBoard *Connect4State::GetBoard()
+{
+  Connect4Board *Board = new Connect4Board(State);
+  return Board;
 }

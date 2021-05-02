@@ -71,9 +71,9 @@ int main()
 {
   Player *Players[3];
   int InvalidMoveCount[3];
-  Players[0] = new l181139AIplayer("Malik", 'L');
-  Players[1] = new l181139AIplayer("Malik", 'P');
-  //Players[1] = new HumanPlayer("Human1", 'H');
+  Players[1] = new l181139AIplayer("Malik", 'L');
+  //Players[1] = new l181139AIplayer("Malik", 'P');
+  Players[0] = new HumanPlayer("Human1", 'H');
 
   //Players[1] = new HumanPlayer("Human2", 'K');
   //Players[1] = new AutoC4Player('L');
