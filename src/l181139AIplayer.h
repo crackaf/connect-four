@@ -1,9 +1,10 @@
-#if !defined(L181139AIPLAYER_H)
+#ifndef L181139AIPLAYER_H
 #define L181139AIPLAYER_H
 
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <cfloat>
 
 #include "player.h"
 #include "gamestate.h"
@@ -29,6 +30,10 @@ private:
   const int kcols = 7;
   const int kscore = 4;
 
+  /**
+   * @brief sturct for minimax returning score and move
+   * 
+   */
   struct minimax_node
   {
     int column;
@@ -36,7 +41,16 @@ private:
   };
 
   //minimax supporting functions
-  int getNextRow(GameState *state, int col);
+
+  // /**
+  //  * @brief Get the Next Available Row in the specific column
+  //  *
+  //  * @param state
+  //  * @param col
+  //  * @return int
+  //  */
+  // int getNextRow(GameState *state, int col);
+
   minimax_node minimax(GameState *state, int depth, double alpha, double beta, bool isMaxPlayer);
 
   //supporting evaluate state functions
@@ -58,31 +72,29 @@ public:
   bool isWinState(GameState *State, int player);
 };
 
-int l181139AIplayer::getNextRow(GameState *State, int col)
-{
-  Connect4State *state = static_cast<Connect4State *>(State);
-  for (int r = krows - 1; r >= 0; --r)
-    if (state->getState(r, col) == '.')
-      return r;
-  return -1;
-}
+// int l181139AIplayer::getNextRow(GameState *State, int col)
+// {
+//   Connect4State *state = static_cast<Connect4State *>(State);
+//   for (int r = krows - 1; r >= 0; --r)
+//     if (state->getState(r, col) == '.')
+//       return r;
+//   return -1;
+// }
 
 l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int depth, double alpha, double beta, bool isMaxPlayer)
 {
   Connect4State *state = static_cast<Connect4State *>(State);
   std::vector<GameMove *> valid_moves = State->GetPossibleMoves(); //valid moves in the current state
 
-  if (isWinState(state, this->PlayerID)) //my own player checking
-    return {NULL, 100000000000000};
-  else if (this->PlayerID != state->GetTurningPlayer() && isWinState(state, state->GetTurningPlayer())) //my own player checking
-    return {NULL, -100000000000000};
-  else if (isWinState(state, state->SelectNextPlayer())) //opposition checking
+  if (isWinState(state, this->PlayerID))                                                                //my own player checking
+    return {NULL, 100000000000000};                                                                     //large score
+  else if (this->PlayerID != state->GetTurningPlayer() && isWinState(state, state->GetTurningPlayer())) //opponent checking
+    return {NULL, -100000000000000};                                                                    //very small score
+  else if (isWinState(state, state->SelectNextPlayer()))                                                //opposition checking
     return {NULL, -10000000000000};
 
   else if (valid_moves.size() == 0) //no more moves
     return {NULL, 0};
-  //is ends in next move?
-  //check if player can win in next move
 
   if (depth == 0)
   {
@@ -91,16 +103,18 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
 
   if (isMaxPlayer)
   {
-    double value = -DBL_MAX; //initializing score to minimum
-    int bestcolumn = static_cast<Connect4Move *>(valid_moves[0])->GetMove();
+    double value = -DBL_MAX;                                                 //initializing score to minimum
+    int bestcolumn = static_cast<Connect4Move *>(valid_moves[0])->GetMove(); //getting random move
 
-    for (auto colS : valid_moves)
+    for (auto mov : valid_moves)
     {
-      Connect4Move *col = static_cast<Connect4Move *>(colS);
-      GameState *state_copy = state->Clone();
+      Connect4Move *col = static_cast<Connect4Move *>(mov);
+      GameState *state_copy = state->Clone(); //cloning the state
 
       state_copy->ApplyMove(col); //AI move
       double new_score = minimax(state_copy, depth - 1, alpha, beta, false).score;
+
+      delete state_copy; //deleting the unused state
 
       if (new_score > value) //selecting best score for our AI
       {
@@ -119,13 +133,15 @@ l181139AIplayer::minimax_node l181139AIplayer::minimax(GameState *State, int dep
     double value = DBL_MAX;
     int bestcolumn = static_cast<Connect4Move *>(valid_moves[0])->GetMove();
 
-    for (auto colS : valid_moves)
+    for (auto mov : valid_moves)
     {
-      Connect4Move *col = static_cast<Connect4Move *>(colS);
+      Connect4Move *col = static_cast<Connect4Move *>(mov);
       GameState *state_copy = state->Clone();
 
       state_copy->ApplyMove(col); //opposition move
       double new_score = minimax(state_copy, depth - 1, alpha, beta, true).score;
+
+      delete state_copy; //deleting the unused state
 
       if (new_score < value) //selecting worst score for us
       {
@@ -162,25 +178,32 @@ double l181139AIplayer::EvaluateSubState(std::string line)
     return (c != this->PlayerID && c != '.');
   }); //count opponent stones
 
-  if (my_count >= 4)
+  if (my_count >= 4) //I'm winnign
     score += 100;
   // else if (opposition_count >= 4)
   // 	score -= 90;
-  else if (my_count == 3 && null_count == 1)
+  else if (my_count == 3 && null_count == 1) //myplayer closer to win
     score += 5;
   else if (my_count == 2 && null_count == 2)
     score += 2;
   // else if (opposition_count == 2 && null_count == 2)
   // 	score -= 1;
-  if (opposition_count == 3 && null_count == 1)
+  if (opposition_count == 3 && null_count == 1) //opponent player winnign
     score -= 4;
 
   return score;
 }
 
-// scoring every position with respective to my ID
+// scoring every position with respective to my color
 double l181139AIplayer::EvaluateState(GameBoard *Board)
 {
+  /*
+  Check the whole board with possible winning positions(totak 4 connects).
+  make a window of 4 in each stage and than checks thoes 4 stones.
+  if mine are 3 and one is empty then score is bigger
+  if opponent are 3 and one is empty the score is negative beaucse opponent is winning and so on
+  */
+
   Connect4Board *board = static_cast<Connect4Board *>(Board);
   double score = 0;
 
@@ -258,6 +281,7 @@ double l181139AIplayer::EvaluateState(GameBoard *Board)
 // 	return EvaluateState(new Connect4Board(mystate));
 // }
 
+//check if the state is winning
 bool l181139AIplayer::isWinState(GameState *State, int player)
 {
   Connect4State *state = static_cast<Connect4State *>(State);
