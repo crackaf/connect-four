@@ -1,2 +1,1 @@
-# connect-four
-Connect four game implementation using min-max algo in c++
+# repo is depreciated, new repo: https://github.com/ghostdart/connect4
