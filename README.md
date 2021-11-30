@@ -7,3 +7,5 @@ The struct is made for minimax to return two values. The score and the col for w
 
 The scoring idea is taken from internet and I have provided link for that. Basically I'm looking the whole board and making the arry of 4 stones. After that I'm checking those stones, e.g Can I make the 4 stones in this state? Or Can the 
 opponent make the 4 stones in this state. Checking these types of few things and score it accordingly.
+
+More abstract code: https://github.com/crackaf/connect4
